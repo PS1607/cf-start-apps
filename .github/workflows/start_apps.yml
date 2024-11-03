@@ -13,8 +13,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Install Cloud Foundry CLI
-        uses: cloudfoundry/cli-action@v1
+      - name: Set-up Cloud Foundry CLI
+        run: |
+          wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo gpg --dearmor -o /usr/share/keyrings/cli.cloudfoundry.org.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cli.cloudfoundry.org.gpg] https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          sudo apt-get update
+          sudo apt-get install cf8-cli
+          cf --help
 
       - name: Log in to Cloud Foundry
         env:
