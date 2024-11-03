@@ -1,6 +1,8 @@
 name: Start Cloud Foundry Apps
 
 on:
+  schedule:
+    - cron: "0 8 * * *"
   push:
     branches:
       - main  # Trigger the workflow on pushes to the 'main' branch
