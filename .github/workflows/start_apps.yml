@@ -29,13 +29,13 @@ jobs:
           CF_ORG: ${{ secrets.CF_ORG }}
           CF_SPACE: ${{ secrets.CF_SPACE }}
         run: |
-          cf login -a CF_API -u CF_USERNAME -p CF_PASSWORD -o CF_ORG -s CF_SPACE
+          cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE
 
       - name: Start Applications
         env:
           CF_APP_NAME: cf_start_apps-srv  # Change this to your application name
         run: |
-          cf start CF_APP_NAME
+          cf start $CF_APP_NAME
 
       - name: Log out
         run: |
