@@ -6,7 +6,7 @@ on:
       - main  # Trigger the workflow on pushes to the 'main' branch
 
 jobs:
-  deploy:
+  start:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,21 +21,60 @@ jobs:
           sudo apt-get install cf8-cli
           cf --help
 
-      - name: Log in to Cloud Foundry
+      - name: Read and loop through JSON array
         env:
-          CF_API: ${{ secrets.CF_API_URL }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
           CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
-          CF_ORG: ${{ secrets.CF_ORG }}
-          CF_SPACE: ${{ secrets.CF_SPACE }}
         run: |
-          cf login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE
+          # Load the JSON file
+          JSON_FILE="app_details.json"
+          
+          # Loop through each API endpoint
+          ENDPOINT_COUNT=$(jq '.api_endpoints | length' $JSON_FILE)
+          for ((i=0; i<ENDPOINT_COUNT; i++)); do
+          
+            # Get API URL
+            API_URL=$(jq -r ".api_endpoints[$i].api_url" $JSON_FILE)
+          
+            # Log in to Cloud Foundry
+            cf api $API_URL
+            cf auth $CF_USERNAME $CF_PASSWORD
 
-      - name: Start Applications
-        env:
-          CF_APP_NAME: cf_start_apps-srv  # Change this to your application name
-        run: |
-          cf start $CF_APP_NAME
+            # Loop through subaccounts
+            SUBACCOUNT_COUNT=$(jq ".api_endpoints[$i].subaccounts | length" $JSON_FILE)
+            for ((j=0; j<SUBACCOUNT_COUNT; j++)); do
+              ORG=$(jq -r ".api_endpoints[$i].subaccounts[$j].org" $JSON_FILE)
+
+              # Target the organization
+              cf target -o "$ORG"
+
+              # Loop through spaces
+              SPACE_COUNT=$(jq ".api_endpoints[$i].subaccounts[$j].spaces | length" $JSON_FILE)
+              for ((k=0; k<SPACE_COUNT; k++)); do
+                SPACE=$(jq -r ".api_endpoints[$i].subaccounts[$j].spaces[$k].space" $JSON_FILE)
+              
+                # Target the space
+                cf target -s "$SPACE"
+
+                # Start all apps in this space
+                APP_COUNT=$(jq ".api_endpoints[$i].subaccounts[$j].spaces[$k].apps | length" $JSON_FILE)
+                for ((m=0; m<APP_COUNT; m++)); do
+                  APP_NAME=$(jq -r ".api_endpoints[$i].subaccounts[$j].spaces[$k].apps[$m].name" $JSON_FILE)
+                
+                  echo "Starting app: $APP_NAME"
+
+                  # Start associated services
+                  SERVICE_COUNT=$(jq ".api_endpoints[$i].subaccounts[$j].spaces[$k].apps[$m].services | length" $JSON_FILE)
+                  for ((n=0; n<SERVICE_COUNT; n++)); do
+                    SERVICE_NAME=$(jq -r ".api_endpoints[$i].subaccounts[$j].spaces[$k].apps[$m].services[$n]" $JSON_FILE)
+                  
+                    echo "Starting service: $SERVICE_NAME"
+                    cf start "$SERVICE_NAME"
+                  done
+                done
+              done
+            done
+          done
 
       - name: Log out
         run: |
