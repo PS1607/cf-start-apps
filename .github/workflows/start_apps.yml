@@ -1,0 +1,39 @@
+name: Start Cloud Foundry Apps
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on pushes to the 'main' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Cloud Foundry CLI
+        run: |
+          wget -q -O cf-cli.deb "https://packages.cloudfoundry.org/stable?release=debian64&version=7.0.3&source=github-actions"
+          sudo dpkg -i cf-cli.deb
+
+      - name: Log in to Cloud Foundry
+        env:
+          CF_API: ${{ secrets.CF_API }}
+          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+          CF_ORG: ${{ secrets.CF_ORG }}
+          CF_SPACE: ${{ secrets.CF_SPACE }}
+        run: |
+          cf login -a CF_API -u CF_USERNAME -p CF_PASSWORD -o CF_ORG -s CF_SPACE
+
+      - name: Start Applications
+        env:
+          CF_APP_NAME: cf_start_apps-srv  # Change this to your application name
+        run: |
+          cf start CF_APP_NAME
+
+      - name: Log out
+        run: |
+          cf logout
