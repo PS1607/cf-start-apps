@@ -23,7 +23,7 @@ jobs:
 
       - name: Log in to Cloud Foundry
         env:
-          CF_API: ${{ secrets.CF_API }}
+          CF_API: ${{ secrets.CF_API_URL }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
           CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
           CF_ORG: ${{ secrets.CF_ORG }}
