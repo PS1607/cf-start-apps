@@ -1,0 +1,26 @@
+{
+    "api_endpoints": [
+        {
+            "api_url": "https://api.cf.us10-001.hana.ondemand.com",
+            "subaccounts": [
+                {
+                    "subaccount_name": "TRIAL",
+                    "org": "cb9601cbtrial",
+                    "spaces": [
+                        {
+                            "space": "dev",
+                            "apps": [
+                                {
+                                    "name": "CF Start Apps",
+                                    "services": [
+                                        "cf_start_apps-srv"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
