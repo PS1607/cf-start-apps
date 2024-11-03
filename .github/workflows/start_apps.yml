@@ -56,7 +56,7 @@ jobs:
                 # Target the space
                 cf target -s "$SPACE"
 
-                # Start all apps in this space
+                # Start all apps/instances in this space
                 APP_COUNT=$(jq ".api_endpoints[$i].subaccounts[$j].spaces[$k].apps | length" $JSON_FILE)
                 for ((m=0; m<APP_COUNT; m++)); do
                   APP_NAME=$(jq -r ".api_endpoints[$i].subaccounts[$j].spaces[$k].apps[$m].name" $JSON_FILE)
