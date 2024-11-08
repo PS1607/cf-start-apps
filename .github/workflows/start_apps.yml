@@ -25,7 +25,7 @@ jobs:
 
       - name: Read and loop through JSON array
         env:
-          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_USERNAME: ${{ vars.CF_USERNAME }}
           CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
         run: |
           # Load the JSON file
